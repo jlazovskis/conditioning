@@ -1,17 +1,13 @@
+from __future__ import division
 # Name: Helper function file
 # Description: Contains helper functions for other functions that find the conditioning number
 # Created: 2016-08-18
 # Last modified: 2016-08-18
 # Author: Janis Lazovskis
 
-# Declare variables, create a list of them, define input data class
-x0,x1,x2 = sp.var('x0,x1,x2')
-varlist = [x0,x1,x2]
-class input:
-    def __init__(self):
-        self.points = [] # points to be tested (e.g. [[1,1,0],[2,1,-2]] )
-        self.func = 0    # defining function (e.g. x0*x0 + x1*x2 - x1*x0 )
-        self.jac = []    # Jacobian of function (always sp.Matrix([func]).jacobian(varlist) )
+# Import packages
+import numpy as np
+import sympy as sp
 
 # Projection function
 # (point, non-negative integer) -> (point)
@@ -22,6 +18,8 @@ def proj(point,coord):
     for i in range(len(point)):
         if i!=coord:
             L.append(point[i]/point[coord])
+    for i in range(len(L)):
+        L[i] = eval(str(L[i]))
     return L
 
 # Reciprocal function
@@ -29,7 +27,7 @@ def proj(point,coord):
 # Gives a vector perpendicular to the input vector
 # Example: reciprocal([3,5]) -> [-5,3]
 def reciprocal(point):
-    return [-point[1],point[0]]
+    return [eval(str(-point[1])),eval(str(point[0]))]
 
 # Parallel checker function
 # (point, point) -> boolean
