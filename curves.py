@@ -4,8 +4,12 @@
 # Last modified: 2016-08-18
 # Author: Janis Lazovskis
 
+# Import packages
+import numpy as np
+import sympy as sp
+
 # Import helper functions
-import conditioning.helpers
+import helpers
 
 # Checker function
 # (class input) -> void
@@ -16,15 +20,16 @@ def checker(data):
     J = data.jac
     
     # Check if curve is smooth
-    p,q,r = var('p,q,r')
+    p,q,r = sp.var('p,q,r')
     g = J[0][0]*p + J[0][1]*q + J[0][2]*r
-    sollist = solve([g.coefficient(x0)==0,g.coefficient(x1)==0,g.coefficient(x2)==0],p,q,r)
-    if len(sollist) > 1:
+    sollist = sp.solve([g.coeff(x0),g.coeff(x1),g.coeff(x2)],p,q,r)
+	# Check if more than one solution    
+	if isinstance(sollist,dict) == False:
         raise Warning("Input curve is not smooth.")
+    # Check if Jacobian vectors linearly independent
     elif len(sollist) == 1:
-        for sol in sollist[0]:
-            if sol.rhs().is_zero() == False:
-                raise Warning("Input curve is not smooth.")
+		if sum(sollist.values()) != 0:
+			raise Warning("Input curve is not smooth.")
 
     # Check if the given points are actually in P^2
     while [0,0,0] in plist:
@@ -66,7 +71,7 @@ def finder(data):
         
     # Find the conditioning numbers for every pair of points
     cnumlist = []
-    s,t = var('s,t')
+    s,t = sp.var('s,t')
     for p1 in plist[:-1]:
         for p2 in plist[plist.index(p1)+1:]:
             for n in [0,1,2]:
@@ -78,9 +83,9 @@ def finder(data):
                     rd2 = reciprocal(proj(dlist[plist.index(p2)],n))
                     # Make sure normals are not parallel
                     if parcheck(rd1,rd2)==False:
-                        sollist = solve([pp1[0]+s*rd1[0] == pp2[0] + t*rd2[0], pp1[1]+s*rd1[1] == pp2[1] + t*rd2[1]],s,t)
-                        cnumlist.append(abs(sollist[0][0].rhs())*numpy.linalg.norm(numpy.array(rd1)))
-                        cnumlist.append(abs(sollist[0][1].rhs())*numpy.linalg.norm(numpy.array(rd2)))
+                        sollist = sp.solve([pp1[0]+s*rd1[0] - pp2[0] - t*rd2[0], pp1[1]+s*rd1[1] - pp2[1] - t*rd2[1]],s,t)
+                        cnumlist.append(abs(sollist[s])*numpy.linalg.norm(numpy.array(rd1)))
+                        cnumlist.append(abs(sollist[t])*numpy.linalg.norm(numpy.array(rd2)))
                         
     # Print result
     if cnumlist == []:

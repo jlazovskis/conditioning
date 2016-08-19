@@ -4,17 +4,14 @@
 # Last modified: 2016-08-18
 # Author: Janis Lazovskis
 
-# Packages to import
-import numpy
-
 # Declare variables, create a list of them, define input data class
-x0,x1,x2 = var('x0,x1,x2')
+x0,x1,x2 = sp.var('x0,x1,x2')
 varlist = [x0,x1,x2]
 class input:
     def __init__(self):
         self.points = [] # points to be tested (e.g. [[1,1,0],[2,1,-2]] )
         self.func = 0    # defining function (e.g. x0*x0 + x1*x2 - x1*x0 )
-        self.jac = []    # Jacobian of function (always jacobian(func,tuple(varlist)) )
+        self.jac = []    # Jacobian of function (always sp.Matrix([func]).jacobian(varlist) )
 
 # Projection function
 # (point, non-negative integer) -> (point)
