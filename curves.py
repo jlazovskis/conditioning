@@ -2,7 +2,7 @@
 # Description: Contains all the main functions for finding the conditioning number of a curve (that is, defined by a single equation in P^2)
 # Created: 2016-08-18
 # Last modified: 2016-08-18
-# Author: Jānis Lazovskis
+# Author: Janis Lazovskis
 
 # Import helper functions
 import conditioning.helpers

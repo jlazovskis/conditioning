@@ -2,7 +2,7 @@
 # Description: Contains helper functions for other functions that find the conditioning number
 # Created: 2016-08-18
 # Last modified: 2016-08-18
-# Author: Jānis Lazovskis
+# Author: Janis Lazovskis
 
 # Packages to import
 import numpy
