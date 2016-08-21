@@ -9,16 +9,12 @@
 
 # Example for a curve
 execfile('curves.py')
-x = thingy()
+x = variety()
 x0,x1,x2 = sp.var('x0,x1,x2')
 x.varlist = [x0,x1,x2]
 x.func = x0*x0 + x1*x2 - x1*x0
-x.points = [[1,1,1], [1,1,0], [0,0,0], [2,1,-2], [0,0,0]]
-x.jac = sp.Matrix([x.func]).jacobian(x.varlist)
-# This will remove three points
-checker(x)
-# This will find the smallest conditioning number
-finder(x)
+x.points = [[1,1,0], [2,1,-2]]
+cnum_curve(x)
 
 # Example for a surface
 execfile('surfaces.py')
