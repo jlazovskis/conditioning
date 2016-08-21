@@ -2,10 +2,11 @@ from __future__ import division
 # Name: Helper function file
 # Description: Contains helper functions for other functions that find the conditioning number
 # Created: 2016-08-18
-# Last modified: 2016-08-18
+# Last modified: 2016-08-21
 # Author: Janis Lazovskis
 
 # Import packages
+import math
 import numpy as np
 import sympy as sp
 
@@ -27,7 +28,7 @@ def proj(point,coord):
 # Gives a vector perpendicular to the input vector
 # Example: reciprocal([3,5]) -> [-5,3]
 def reciprocal(point):
-    return [eval(str(-point[1])),eval(str(point[0]))]
+    return [-1*point[1],point[0]]
 
 # Parallel checker function
 # (point, point) -> boolean
@@ -35,7 +36,22 @@ def reciprocal(point):
 # Example: parcheck([3,3],[-1/2,-1/2]) -> True
 # Example: parcheck([3,4],[7,-1]) -> False
 def parcheck(point1, point2):
-    if point1[0]/point2[0] == point1[1]/point2[1]:
+    return iszero(point1[0]*point2[1] - point1[1]*point2[0])
+
+# Approximate zero
+# number -> boolean
+# Checks if given number is close enough to zero. This allows for machine imprecision
+def iszero(num):
+    if abs(num) < 10**(-4):
         return True
     else:
         return False
+
+# Norm function
+# (list of number) -> number
+# Finds the norm of a vector
+def mynorm(point):
+    ans = 0
+    for p in point:
+        ans += p*p
+    return math.sqrt(ans)
