@@ -10,3 +10,9 @@ Find the conditioning number of a smooth variety based on a finite point sample
 - Switched to class approach
 - Began work on code for surfaces, using code for curves
 
+2016-08-19
+- First draft of code for surfaces completed, needs testing
+- Corrected Sage functions to package-specific Python functions
+
+2016-08-21
+- Split up curve checker into two, changed input class
