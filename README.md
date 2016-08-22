@@ -16,3 +16,4 @@ Find the conditioning number of a smooth variety based on a finite point sample
 
 2016-08-21
 - Split up curve checker into two, changed input class
+- Removed numpy dependency
