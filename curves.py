@@ -8,7 +8,6 @@ from __future__ import division
 
 # Import packages
 import math
-import numpy as np
 import sympy as sp
 
 # Define input data class
@@ -22,10 +21,10 @@ class variety:
 import helpers
 
 ##
-## Checker functions for varieties in 2 variables defined by one function
+## Checker functions for affince varieties in 2 variables defined by one function
 ##
 
-# Checks if smooth
+# Checks if smooth (affine, 2 coords)
 # (class variety) -> boolean
 # Returns True if the input class has a smooth function, False otherwise
 def issmooth(data):
@@ -42,12 +41,12 @@ def issmooth(data):
         sol2 = sp.solve(jac[0]*p + jac[1],p,dict=False)
         psol = sol2[0].subs(sol1[0])
         if helpers.iszero(psol) == False:
-            print "Warning: Input curve's Jacobian has rank 0 with partial " + str(data.varlist[0]) + "coefficient " + str(psol)
+            print "Warning: Input curve's Jacobian has rank 0 with partial " + str(data.varlist[0]) + " coefficient " + str(psol)
             return False
         else:
             return True
 
-# Checks if points are on curve
+# Checks if points are on curve (affine, 2 coords)
 # (class variety) -> boolean
 # Returns True if the input class points lie on the input class variety, False otherwise
 def haspoints(data):
@@ -63,17 +62,16 @@ def haspoints(data):
         return True
 
 ##
-## Conditioning number finder for curves (projective varieties in 3 variables defined by one 
-## function)
+## Conditioning number finder for curves 
 ##
 
-# Conditioning number finder
+# Conditioning number finder (projective, 3 coords)
 # (class variety) -> (list of real number)
-# If everything is fine with the input class, this function finds the conditioning number of the 
-# input class variety. If the curve is not smooth or the points are wrong, it returns an empty list
-# and prints a reason.
-def cnum_curve(data):
-    cnum_list = []
+# This function is a wrapper for projective varieties, transforming them to affine varieties and 
+# then calling cnumaff on each affine piece.
+def cnumcurve(data):
+    # List of conditioning numbers
+    cnumlist = []
     # Check if any of the input points are the origin
     if [0,0,0] in data.points:
         print "Warning: Input point [0, 0, 0] is not a valid point"
@@ -87,37 +85,47 @@ def cnum_curve(data):
             if helpers.iszero(p[n]) == False:
                 affpiece.points.append(helpers.proj(p,n))
         affpiece.func = data.func.subs({data.varlist[n]:1})
-        # Check curve is smooth in given affine piece
-        if issmooth(affpiece) == False:
-            print "Warning: Curve is not smooth when projecting to coordinate " + str(n)
-            return []
-        # Check affine piece contains input points
-        if haspoints(affpiece) == False:
-            print "Warning: Some points are not on curve when projecting to affine coordinate " + str(n)
-            return []
-        # Find the value of the Jacobian at each given point
-        dlist = []
-        jacaff = sp.Matrix([affpiece.func]).jacobian(affpiece.varlist)
-        for p in affpiece.points:
-            dlist.append(jacaff.subs({affpiece.varlist[0]:p[0], affpiece.varlist[1]:p[1]}))
-        # Find the conditioning numbers for every pair of points
-        for p1 in affpiece.points[:-1]:
-            for p2 in affpiece.points[affpiece.points.index(p1)+1:]:
-                # Get reciprocals of Jacbian slopes
-                rj1 = helpers.reciprocal(dlist[affpiece.points.index(p1)])
-                rj2 = helpers.reciprocal(dlist[affpiece.points.index(p2)])
-                # Proceed if normals are not parallel
-                if helpers.parcheck(rj1,rj2) == False:
-                    s,t = sp.var('s,t')
-                    sollist = sp.solve([p1[0]+s*rj1[0] - p2[0] - t*rj2[0], p1[1]+s*rj1[1] - p2[1] - t*rj2[1]],s,t)
-                    cnum_list.append(abs(sollist[s]) * helpers.mynorm(rj1))
-                    cnum_list.append(abs(sollist[t]) * helpers.mynorm(rj2))
+        cnumlist = cnumaff(affpiece,data.varlist(n))
     # Print and return result
-    if cnum_list == []:
+    if cnumlist == []:
         print "No conditioning numbers were found"
         return []
     else:
-        ans = min(cnum_list)
-        print str(len(cnum_list))+" conditioning numbers were found."
+        ans = min(cnumlist)
+        print str(len(cnumlist))+" conditioning numbers were found."
         print "The smallest of these is "+str(ans)+"."
         return [ans]
+
+# Conditioning number finder (affine, 2 coords)
+# (class variety, variable) -> (list of real number)
+# If everything is fine with the input class, this function finds the conditioning number of the 
+# input class variety projected to affine 2-space. If the curve is not smooth or the points are 
+# wrong, it returns an empty list and prints a reason.
+
+def cnumaff(affdata,projvar):
+    condlist = []
+    # Check curve is smooth in given affine piece
+    if issmooth(affdata) == False:
+        print "Warning: Curve is not smooth when projecting to coordinate " + str(projvar)
+        return []
+    # Check affine piece contains input points
+    if haspoints(affdata) == False:
+        print "Warning: Some points are not on curve when projecting to affine coordinate " + str(projvar)
+        return []
+    # Find the value of the Jacobian at each given point
+    dlist = []
+    jacaff = sp.Matrix([affdata.func]).jacobian(affdata.varlist)
+    for p in affdata.points:
+        dlist.append(jacaff.subs({affdata.varlist[0]:p[0], affdata.varlist[1]:p[1]}))
+    # Find the conditioning numbers for every pair of points
+    for p1 in affdata.points[:-1]:
+        for p2 in affdata.points[affdata.points.index(p1)+1:]:
+            # Get reciprocals of Jacbian slopes
+            rj1 = helpers.reciprocal(dlist[affdata.points.index(p1)])
+            rj2 = helpers.reciprocal(dlist[affdata.points.index(p2)])
+            # Proceed if normals are not parallel
+            if helpers.parcheck(rj1,rj2) == False:
+                s,t = sp.var('s,t')
+                sollist = sp.solve([p1[0]+s*rj1[0] - p2[0] - t*rj2[0], p1[1]+s*rj1[1] - p2[1] - t*rj2[1]],s,t)
+                condlist.append(abs(sollist[s]) * helpers.mynorm(rj1))
+                condlist.append(abs(sollist[t]) * helpers.mynorm(rj2))
