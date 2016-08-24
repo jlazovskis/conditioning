@@ -3,7 +3,7 @@ from __future__ import division
 # Description: Contains all the main functions for finding the conditioning number of a curve (that
 # is, a variety defined by a single equation in P^2)
 # Created: 2016-08-18
-# Last modified: 2016-08-21
+# Last modified: 2016-08-24
 # Author: Janis Lazovskis
 
 # Import packages
@@ -127,5 +127,8 @@ def cnumaff(affdata,projvar):
             if helpers.parcheck(rj1,rj2) == False:
                 s,t = sp.var('s,t')
                 sollist = sp.solve([p1[0]+s*rj1[0] - p2[0] - t*rj2[0], p1[1]+s*rj1[1] - p2[1] - t*rj2[1]],s,t)
-                condlist.append(abs(sollist[s]) * helpers.mynorm(rj1))
-                condlist.append(abs(sollist[t]) * helpers.mynorm(rj2))
+                currcondlist = [abs(sollist[s]) * helpers.mynorm(rj1), abs(sollist[t]) * helpers.mynorm(rj2)]
+                # Use found conditioning numbers if they are realistic
+                if max(currcondlist)/min(currcondlist) < 2:
+                    condlist += currcondlist
+    return condlist
