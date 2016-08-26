@@ -85,7 +85,7 @@ def cnumcurve(data):
             if helpers.iszero(p[n]) == False:
                 affpiece.points.append(helpers.proj(p,n))
         affpiece.func = data.func.subs({data.varlist[n]:1})
-        cnumlist = cnumaff(affpiece,data.varlist(n))
+        cnumlist += cnumaff(affpiece,data.varlist(n))
     # Print and return result
     if cnumlist == []:
         print "No conditioning numbers were found"
