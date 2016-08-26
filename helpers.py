@@ -41,7 +41,6 @@ def parcheck(point1, point2):
 # number -> boolean
 # Checks if given number is close enough to zero. This allows for machine imprecision
 def iszero(num):
-    print num
     if sp.N(abs(num)) < 10**(-4):
         return True
     else:
