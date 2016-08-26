@@ -101,7 +101,6 @@ def cnumcurve(data):
 # If everything is fine with the input class, this function finds the conditioning number of the 
 # input class variety projected to affine 2-space. If the curve is not smooth or the points are 
 # wrong, it returns an empty list and prints a reason.
-
 def cnumaff(affdata,projvar):
     condlist = []
     # Check curve is smooth in given affine piece
