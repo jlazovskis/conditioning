@@ -2,7 +2,6 @@ from __future__ import division
 # Name: Helper function file
 # Description: Contains helper functions for other functions that find the conditioning number
 # Created: 2016-08-18
-# Last modified: 2016-08-21
 # Author: Janis Lazovskis
 
 # Import packages
