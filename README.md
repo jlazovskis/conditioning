@@ -18,5 +18,8 @@ Find the conditioning number of a smooth variety based on a finite point sample
 - Split up curve checker into two, changed input class
 - Removed numpy dependency
 
-216-08-24
+2016-08-24
 - Changed cnumaff so it returns only "realistic" cond nums (based on pair ratio)
+
+2016-08-26
+- Started work on function for n-dimensional projective varieties defined by 1 function
