@@ -3,7 +3,6 @@ from __future__ import division
 # Description: Contains all the main functions for finding the conditioning number of a curve (that
 # is, a variety defined by a single equation in P^2)
 # Created: 2016-08-18
-# Last modified: 2016-08-24
 # Author: Janis Lazovskis
 
 # Import packages
@@ -99,8 +98,8 @@ def cnumcurve(data):
 # Conditioning number finder (affine, 2 coords)
 # (class variety, variable) -> (list of real number)
 # If everything is fine with the input class, this function finds the conditioning number of the 
-# input class variety projected to affine 2-space. If the curve is not smooth or the points are 
-# wrong, it returns an empty list and prints a reason.
+# input class variety in affine 2-space. If the curve is not smooth or the points are wrong, it
+# returns an empty list and prints a reason.
 def cnumaff(affdata,projvar):
     condlist = []
     # Check curve is smooth in given affine piece
