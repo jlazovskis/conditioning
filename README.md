@@ -23,3 +23,6 @@ Find the conditioning number of a smooth variety based on a finite point sample
 
 2016-08-26
 - Started work on function for n-dimensional projective varieties defined by 1 function
+
+2016-08-27
+- Completed first draft for general conditioning number finder (using nested / recursive tree approach) cnumgen
