@@ -10,7 +10,7 @@ import math
 import sympy as sp
 import itertools as it
 
-# Define data classes
+# Define global structures
 # Class variety: describes a variety, its defining function, and points on it
 class variety:
     def __init__(self):
@@ -28,6 +28,9 @@ class pnode:
         self.parent = None # parent pnode (None if none)
         self.children = [] # list of children pnodes (empty if none)
 
+# List cnumlist: a list of conditioning numbers. Global because helper functions need to use it too
+cnumlist = []
+
 # Import other files
 import helpers
 import curves
@@ -38,85 +41,32 @@ import curves
 # input class variety of dimension n > 1. If the surface is not smooth or the points are wrong, it
 # returns an empty list and prints a reason.
 def cnumgen(data):
-    # List of conditioning numbers
+    # Reset list of conditioning numbers
     cnumlist = []
     # Dimension of variety currently being considered
     curdim = len(data.varlist)-1
-    # Declare dictionary of groups of points to keep track
-    pdict = {}
-    pdict[curdim] = []
-    # Declare dictionary of directions of projections 
-    ddict = {}
-    ddict[curdim] = []
-    # Declare dictionary of function defining variety 
-    fdict = {}
-    fdict[curdim] = []
-    # Find all n-tuples of points
+    # Create list of pnodes in affine n-space 
+    toplist = []
+    tlind = 0
     for pgroup in list(it.combinations(data.points,curdim)):
         # Project to all possible directions
         for direc in range(curdim+1):
             if canproj(list(pgroup),direc) == True:
-                pdict[curdim] += [map(lambda x: helpers.proj(x,direc), list(pgroup))]
-                ddict[curdim] += [[direc]]
-                fdict[curdim] += [[data.func.subs(data.varlist[direc]:1)]]
-    while curdim > 2:
-        curdim -= 1
-        pdict[curdim] = []
-        ddict[curdim] = []
-        fdict[curdim] = []
-        for pgroup in pdict[curdim+1]:
-            for qgroup in list(it.combinations(pgroup,curdim)):
-                useddirec = ddict[curdim+1][pdict[curdim+1].index(pgroup)]
-                unuseddirec = [x for x in range(len(data.varlist)) if x not in useddirec]
-                # Calculate hyperplane spanned by points in qgroup
-                hypeq = sp.Matrix(curdim+1,curdim+1,lambda i,j: 1)
-                matind = 0
-                # Add variable names in first row
-                for varind in unuseddirec:
-                    hypeq[0:matind] = sp.Matrix([data.varlist[varind]])
-                    matind += 1
-                matind = 1
-                # Add points in other rows
-                for q in qgroup:
-                    hypeq[matind,0:-1] = sp.Matrix(q).T
-                    matind += 1
+                toplist.append(pnode())
+                toplist[tlind].func = data.func.subs(data.varlist[direc]:1)
+                toplist[tlind].points = map(lambda x: helpers.proj(x,direc), list(pgroup))
+                toplist[tlind].varlist = data.varlist[:direc] + data.varlist[direc+1:]
+                tlind += 1
+    for topnode in toplist:
+        childify(topnode,curdim)
+    if cnumlist == []:
+        print "No conditioning numbers found"
+    else:
+        print "Minimum conditioning number found is "+str(min(cnumlist))
+        print "Complete list of conditioning numbers found is:"
+    return cnumlist
 
-
-                # Project to directions not already considered
-                
-                do
-
-                for direc in unuseddirec:
-                    direcind = unuseddirec.index(direc)
-                    if canproj(list(qgroup),direcind) == True:
-                        pdict[curdim] += [map(lambda x: x[:direcind]+x[direcind+1:], list(qgroup))]
-                        ddict[curdim] += [ddict[curdim+1][pdict[curdim+1].index(pgroup)] + [direc]]
-                        # Calculate hyperplane spanned by chosen points
-                        hypeq = sp.Matrix(curdim+1,curdim+1,lambda i,j: 1)
-                        matind = 0
-                        # Add variable names in first row
-                        for varind in [x for x in range(len(data.varlist)) if x not in ddict[2][pind]]:
-                            hypeq[0:matind] = sp.Matrix([data.varlist[varind]])
-                            matind += 1
-                        matind = 1
-                        # Add points in other rows
-                        for p in pdict[curdim][-1]:
-                            hypeq[matind,0:-1] = sp.Matrix(p).T
-                        sol = sp.det(hypeq)
-                        do 
-
-    for pind in range(len(pdict[2])):
-        # Declare variety class to pass to intersection finder
-        dim1var = variety()
-        # Add only relevant variables
-        for varind in [x for x in range(len(data.varlist)) if x not in ddict[2][pind]]:
-            dim1var.varlist.append(data.varlist[varind])
-        # Add only relevant points
-        dim1var.points += pdict[2][pind]
-
-    print pdict
-    print fdict
-
+# Projection checker
 # (list of (list of real number)), real number -> boolean 
 # Checks if a list of points in projective space can be projected to an affine piece
 def canproj(lst,coord):
@@ -124,3 +74,37 @@ def canproj(lst,coord):
         if helpers.iszero(p[coord]) == True:
             return False
     return True
+
+# Recursive children-creator or conditioning-number-finder
+# (class pnode), real num -> void
+# If dim>1, finds all the children of pnode and records them in the children attribute. If dim=1,
+# finds conditioning number and adds it to cnumlist
+def childify(pointnode, dim):
+    if dim > 2:
+        pind = 0
+        # Calculate hyperplane spanned by points
+        hypeq = sp.Matrix(dim+1,dim+1,lambda i,j: 1)
+        # Add first row of variables
+        hypeq[0,0:-1] = sp.Matrix([pointnode.varlist])
+        # Add points
+        hypeq[1:,0:-1] = sp.Matrix(list(pointnode.points))
+        sol = sp.det(hypeq)
+        for varname in pointnode.varlist:
+            varind = pointnode.varlist.index(varname)
+            # Make sure variable can be expressed in terms of other vars
+            if sol.has(varname):
+                for pgroup in list(it.combinations(pointnode.points,dim-1)):
+                    # Make sure choice of dim-1 points (projected) are in general position
+                    plist = map(lambda x: x[0:varind] + x[varind+1:], list(pgroup))
+                    if helpers.iszero(sp.det(sp.Matrix(plist))) == False:
+                        # Declare new child pnode:
+                        pointnode.children.append(pnode())
+                        pointnode.children[pind].func = pointnode.func.subs({varname:sp.solve(sol,varname)[0]})
+                        pointnode.children[pind].points = plist
+                        pointnode.children[pind].varlist = [x for x in pointnode.varlist if x not in [varname]]
+                        pointnode.children[pind].parent = pointnode
+                        # Childify new child pnode
+                        childify(pointnode.children[pind],dim-1)
+                        pind += 1
+    else:
+        cnumlist += cnumaff(pointnode,'null')
