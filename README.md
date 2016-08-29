@@ -26,3 +26,6 @@ Find the conditioning number of a smooth variety based on a finite point sample
 
 2016-08-27
 - Completed first draft for general conditioning number finder (using nested / recursive tree approach) cnumgen
+
+2016-08-29
+- Began working on examples with lots of approximate points (cone10.txt)
