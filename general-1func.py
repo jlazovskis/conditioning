@@ -42,6 +42,7 @@ import curves
 # returns an empty list and prints a reason.
 def cnumgen(data):
     # Reset list of conditioning numbers
+    global cnumlist
     cnumlist = []
     # Dimension of variety currently being considered
     curdim = len(data.varlist)-1
@@ -107,4 +108,5 @@ def childify(pointnode, dim):
                         childify(pointnode.children[pind],dim-1)
                         pind += 1
     else:
-        cnumlist += cnumaff(pointnode,'null')
+        global cnumlist
+        cnumlist += curves.cnumaff(pointnode,'null')
