@@ -53,7 +53,7 @@ def cnumgen(data):
         for direc in range(curdim+1):
             if canproj(list(pgroup),direc) == True:
                 toplist.append(pnode())
-                toplist[tlind].func = data.func.subs(data.varlist[direc]:1)
+                toplist[tlind].func = data.func.subs({data.varlist[direc]:1})
                 toplist[tlind].points = map(lambda x: helpers.proj(x,direc), list(pgroup))
                 toplist[tlind].varlist = data.varlist[:direc] + data.varlist[direc+1:]
                 tlind += 1
