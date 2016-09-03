@@ -28,6 +28,7 @@ import helpers
 # Returns True if the input class has a smooth function, False otherwise
 def issmooth(data):
     jac = sp.Matrix([data.func]).jacobian(data.varlist)
+    print jac
     # Check if rank of Jacobian is trivially zero
     sol1 = sp.solve([jac[0],jac[1]],data.varlist[0],data.varlist[1],dict=True)
     if len(sol1) == 0:
@@ -36,14 +37,17 @@ def issmooth(data):
         print "Warning: Input curve is singular at "+str(sol1)
         return False
     else:
-        p = sp.var('p')
-        sol2 = sp.solve(jac[0]*p + jac[1],p,dict=False)
-        psol = sol2[0].subs(sol1[0])
-        if helpers.iszero(psol) == False:
-            print "Warning: Input curve's Jacobian has rank 0 with partial " + str(data.varlist[0]) + " coefficient " + str(psol)
-            return False
-        else:
+        if helpers.iszero(sol1[0][data.varlist[0]]) and helpers.iszero(sol1[0][data.varlist[1]]):
             return True
+        else:
+            p = sp.var('p')
+            sol2 = sp.solve(jac[0]*p + jac[1],p,dict=False)
+            psol = sol2[0].subs(sol1[0])
+            if helpers.iszero(psol) == False:
+                print "Warning: Input curve's Jacobian has rank 0 with partial " + str(data.varlist[0]) + " coefficient " + str(psol)
+                return False
+            else:
+                return True
 
 # Checks if points are on curve (affine, 2 coords)
 # (class variety) -> boolean
