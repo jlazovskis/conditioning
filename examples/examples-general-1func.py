@@ -16,7 +16,7 @@ l = map(lambda x: [float(x[0]), float(x[1]), float(x[2])], map(lambda y: y.split
 # Declare variety
 cone = variety()
 x0,x1,x2 = sp.var('x0,x1,x2')
-cone.varlist = ['x0','x1','x2']
+cone.varlist = [x0,x1,x2]
 cone.points = l
 cone.func = x0**2 + x1**2 - x2**2
 # Run main function
