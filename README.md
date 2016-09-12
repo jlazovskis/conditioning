@@ -29,3 +29,8 @@ Find the conditioning number of a smooth variety based on a finite point sample
 
 2016-08-29
 - Began working on examples with lots of approximate points (cone10.txt)
+
+2016-09-12
+- Consolidated curve conditioning number finder into general number finder, moved helper functions to helpers.py
+- Deleted curves.py and surfaces.py, all can be done with cnumgen in main file
+- Examples need to be adjusted with respect to the new structure
